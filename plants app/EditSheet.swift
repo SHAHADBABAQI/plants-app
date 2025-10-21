@@ -21,6 +21,7 @@ struct EditSheet: View {
     @State private var wateringDay = "Every Day"
     @State private var watering = "20-50 ml"
     
+    
     let rooms = ["Living Room", "Bedroom", "Kitchen", "Bathroom", "Balcony"]
     let lightOptions = ["Full Sun", "Partial Sun", "Low Light"]
     let wateringDayOptions = ["Every Day", "Every 2 Days", "Every 3 Days", "Once a week", "Every 10 Days", "Every 2 weeks"]
@@ -28,12 +29,11 @@ struct EditSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 Button {
                     dismiss()
                 } label: {
-                    Image("xmark")
+                    Image("close")
 //                        .resizable()
 //                        .scaledToFit()
 //                        .frame(width: 16, height: 16)
@@ -46,7 +46,7 @@ struct EditSheet: View {
 //                        .clipShape(Circle())
 //                        .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
                 }
-                .buttonStyle(.glass) // ensure our custom circular styling is used
+                .buttonStyle(.glass)
                 
                 Spacer()
                 
@@ -59,7 +59,7 @@ struct EditSheet: View {
                 Button {
                     dismiss()
                 }label: {
-                    Image("checkmark")
+                    Image("check")
                 }
                 .buttonStyle(.glass)
 

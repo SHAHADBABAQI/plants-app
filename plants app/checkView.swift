@@ -7,21 +7,92 @@ struct CheckboxItem{
 
 struct ckeckboxView: View {
     @Binding var item: CheckboxItem
+    @State private var editReminder = false
+
     var body: some View{
-        
-        HStack{
-            Image(systemName: "circle")
-                .foregroundColor(.gray)
-                .font(.system(size: 22))
-            Spacer()
-            Text(item.name)
+        VStack(alignment: .leading){
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: item.isChecked ? "checkmark.circle.fill": "circle")
+                    .foregroundColor(item.isChecked ? .button : .gray)
+                    .font(.system(size: 22))
+                    .padding(.trailing, 4) // small space only to the right
+                    .contentShape(Rectangle()) // make tap area easier
+                    .onTapGesture {
+                        item.isChecked.toggle()
+                    }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image("location")
+                            .resizable()
+                            .renderingMode(.template)
+                            .foregroundColor(.gray)
+                            .frame(width: 15, height: 15)
+
+                        Text("in Bedroom")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 15))
+                    }
+
+                    Text(item.name)
+                        .font(.system(size: 22, weight: .semibold)) // slightly smaller for tighter layout
+                        .foregroundColor(.primary)
+
+                    HStack(spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image("sun")
+                                .resizable()
+                                .renderingMode(.template)
+                                .foregroundColor(.fullSun)
+                                .frame(width: 15, height: 15)
+
+                            Text("Full sun")
+                                .foregroundColor(.fullSun)
+                                .font(.system(size: 14))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.field)
+                        .cornerRadius(8)
+
+                        HStack(spacing: 6) {
+                            Image("drop")
+                                .resizable()
+                                .renderingMode(.template)
+                                .foregroundColor(.dropMll)
+                                .frame(width: 10, height: 14)
+
+                            Text("20-30 ml")
+                                .foregroundColor(.dropMll)
+                                .font(.system(size: 14))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.field)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            .contentShape(Rectangle()) // make the whole row tappable
+            .onTapGesture {
+                editReminder = true
+            }
+            .sheet(isPresented: $editReminder) {
+                EditSheet()
+            }
         }
     }
-    
-    
 }
 
 struct checkView: View {
+    @State private var progress: Double = 0.7 // 👈 demo progress
+    @State private var yOffset: CGFloat = 0.0
+    @State private var setReminder = false
+    @State private var items = [
+        CheckboxItem(name: "Potos", isChecked: false),
+        CheckboxItem(name: "Flower", isChecked: false)
+
+    ]
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
             Text("My Plants 🌱")
@@ -33,20 +104,46 @@ struct checkView: View {
             VStack {
                 Text("Your plants are waiting for a sip 💦")
                 
-                Rectangle()
-                    .frame(height: 8)
-                    .foregroundColor(.field)
-                    .cornerRadius(4)
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        // Background bar with rounded corners
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.field)
+                            .frame(height: 8)
+                        
+                        // Progress fill with rounded corners
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.button)
+                            .frame(width: max(0, min(progress, 1)) * geo.size.width, height: 8)
+                            .animation(.easeInOut(duration: 1), value: progress)
+                    }
+                }
+                .frame(height: 8) // constrain reader height
             }
             .padding(.bottom, 8)
             
             List {
-                
-                Section {
-                
+                ForEach($items, id: \.name) { $item in
+                    ckeckboxView(item: $item)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)) // tighter row insets
                 }
             }
-            .listStyle(.insetGrouped) // choose a style you like
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            
+            Button{
+                setReminder.toggle()
+            }label:{
+                Image("plus")
+            }
+            .buttonStyle(.glass)
+            .padding()
+            .sheet(isPresented: $setReminder) {
+                ReminderSheet()
+            }
+            
         }
         .padding()
     }
@@ -54,10 +151,11 @@ struct checkView: View {
 
 struct ckeckboxView_previews: PreviewProvider{
     static var previews: some View{
-        ckeckboxView(item: .constant(CheckboxItem(name: "botos plant", isChecked: false)))
+        checkView()
+        
     }
 }
 
-//#Preview {
-//    checkView()
-//}
+#Preview {
+    checkView()
+}
