@@ -27,7 +27,7 @@ struct ReminderSheet: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image("xmark")
+                    Image("close")
 //                        .resizable()
 //                        .scaledToFit()
 //                        .frame(width: 16, height: 16)
@@ -53,7 +53,7 @@ struct ReminderSheet: View {
                 Button {
                     dismiss()
                 }label: {
-                    Image("checkmark")
+                    Image("check")
                 }
                 .buttonStyle(.glass)
 
