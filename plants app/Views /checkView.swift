@@ -8,6 +8,7 @@ struct CheckboxItem{
 struct ckeckboxView: View {
     @Binding var item: CheckboxItem
     @State private var editReminder = false
+    @ObservedObject var viewModel: PlantViewModel
 
     var body: some View{
         VStack(alignment: .leading){
@@ -29,12 +30,13 @@ struct ckeckboxView: View {
                             .foregroundColor(.gray)
                             .frame(width: 15, height: 15)
 
-                        Text("in Bedroom")
+                        // Read from ObservedObject without using the projected value ($)
+                        Text(viewModel.plant.selectedRoom)
                             .foregroundColor(.gray)
                             .font(.system(size: 15))
                     }
 
-                    Text(item.name)
+                    Text("\(viewModel.plant.plantName)")
                         .font(.system(size: 22, weight: .semibold)) // slightly smaller for tighter layout
                         .foregroundColor(.primary)
 
@@ -46,7 +48,7 @@ struct ckeckboxView: View {
                                 .foregroundColor(.fullSun)
                                 .frame(width: 15, height: 15)
 
-                            Text("Full sun")
+                            Text("\(viewModel.plant.selectedLight)")
                                 .foregroundColor(.fullSun)
                                 .font(.system(size: 14))
                         }
@@ -62,7 +64,7 @@ struct ckeckboxView: View {
                                 .foregroundColor(.dropMll)
                                 .frame(width: 10, height: 14)
 
-                            Text("20-30 ml")
+                            Text("\(viewModel.plant.watering)")
                                 .foregroundColor(.dropMll)
                                 .font(.system(size: 14))
                         }
@@ -93,6 +95,8 @@ struct checkView: View {
         CheckboxItem(name: "Flower", isChecked: false)
 
     ]
+    @StateObject private var viewModel = PlantViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
             Text("My Plants 🌱")
@@ -114,6 +118,7 @@ struct checkView: View {
                         // Progress fill with rounded corners
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.button)
+                            .glassEffect()
                             .frame(width: max(0, min(progress, 1)) * geo.size.width, height: 8)
                             .animation(.easeInOut(duration: 1), value: progress)
                     }
@@ -124,7 +129,7 @@ struct checkView: View {
             
             List {
                 ForEach($items, id: \.name) { $item in
-                    ckeckboxView(item: $item)
+                    ckeckboxView(item: $item, viewModel: viewModel)
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)) // tighter row insets
                 }
@@ -133,13 +138,21 @@ struct checkView: View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             
-            Button{
-                setReminder.toggle()
-            }label:{
-                Image("plus")
+            HStack {
+                Spacer()
+                Button {
+                    setReminder.toggle()
+                } label: {
+                    Image("plus")
+                        .frame(width: 48, height: 48)
+                        .background(Color.button)
+                        .cornerRadius(60)
+                        .glassEffect(.clear)
+                }
+               
             }
-            .buttonStyle(.glass)
-            .padding()
+            .padding(.trailing, 25)
+            .padding(.bottom, 20)
             .sheet(isPresented: $setReminder) {
                 ReminderSheet()
             }

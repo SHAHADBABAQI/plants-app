@@ -1,4 +1,10 @@
 //
+//  EditSheet.swift
+//  plants app
+//
+//  Created by shahad khaled on 28/04/1447 AH.
+//
+//
 //  ReminderSheet.swift
 //  plants app
 //
@@ -7,13 +13,15 @@
 
 import SwiftUI
 
-struct ReminderSheet: View {
+struct EditSheet: View {
     @Environment(\.dismiss) var dismiss
     @State private var plantName = ""
     @State private var selectedRoom = "Living Room"
     @State private var selectedLight = "Full Sun"
     @State private var wateringDay = "Every Day"
     @State private var watering = "20-50 ml"
+
+    
     
     let rooms = ["Living Room", "Bedroom", "Kitchen", "Bathroom", "Balcony"]
     let lightOptions = ["Full Sun", "Partial Sun", "Low Light"]
@@ -22,25 +30,15 @@ struct ReminderSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 Button {
                     dismiss()
                 } label: {
                     Image("close")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 16, height: 16)
-//                        .padding(14) // centers icon inside the circle
-//                        .background(.ultraThinMaterial)
-//                        .overlay(
-//                            Circle()
-//                                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
-//                        )
-//                        .clipShape(Circle())
-//                        .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
+                        .frame(width: 48, height: 48)
+                        .cornerRadius(60)
+                        .glassEffect(.clear)
                 }
-                .buttonStyle(.glass) // ensure our custom circular styling is used
                 
                 Spacer()
                 
@@ -54,8 +52,12 @@ struct ReminderSheet: View {
                     dismiss()
                 }label: {
                     Image("check")
+                        .frame(width: 48, height: 48)
+                        .background(Color.button)
+                        .cornerRadius(60)
+                        .glassEffect(.clear)
                 }
-                .buttonStyle(.glass)
+                
 
             }
             .padding()
@@ -170,6 +172,16 @@ struct ReminderSheet: View {
                     .cornerRadius(30)
                     // Apply tint to the container so both Pickers inherit it
                     .tint(Color.gray.opacity(0.8))
+                    Spacer()
+                    Button("Delete Reminder") {
+                       
+                    }
+                    .frame(width: 330, height: 18)
+                    .padding()
+                    .background(Color.field)
+                    .cornerRadius(30)
+                    .foregroundColor(.red)
+                 
                 }
                 .padding()
             }
@@ -180,6 +192,7 @@ struct ReminderSheet: View {
 }
 
 #Preview {
-    ReminderSheet()
+    EditSheet()
 }
+
 

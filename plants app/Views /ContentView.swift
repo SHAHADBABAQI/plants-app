@@ -43,15 +43,18 @@ struct ContentView: View {
             Spacer()
             
             // Button Section
-            Button("Set Plant Reminder") {
+            Button{
                 setReminder.toggle()
+                
+            }label: {
+                Text("Set Plant Reminder")
+                .frame(width: 280, height: 18)
+                .padding()
+                .background(Color.button)
+                .cornerRadius(60)
+                .glassEffect(.clear)
             }
-            .frame(width: 280, height: 18)
-            .padding()
-            .background(Color.button)
-            .cornerRadius(60)
             .buttonStyle(.plain)
-            .glassEffect(.clear)
             .sheet(isPresented: $setReminder) {
                 ReminderSheet()
             }

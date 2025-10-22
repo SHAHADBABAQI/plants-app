@@ -1,10 +1,4 @@
 //
-//  EditSheet.swift
-//  plants app
-//
-//  Created by shahad khaled on 28/04/1447 AH.
-//
-//
 //  ReminderSheet.swift
 //  plants app
 //
@@ -13,14 +7,14 @@
 
 import SwiftUI
 
-struct EditSheet: View {
+struct ReminderSheet: View {
     @Environment(\.dismiss) var dismiss
     @State private var plantName = ""
     @State private var selectedRoom = "Living Room"
     @State private var selectedLight = "Full Sun"
     @State private var wateringDay = "Every Day"
     @State private var watering = "20-50 ml"
-    
+    @StateObject private var viewModel = PlantViewModel()
     
     let rooms = ["Living Room", "Bedroom", "Kitchen", "Bathroom", "Balcony"]
     let lightOptions = ["Full Sun", "Partial Sun", "Low Light"]
@@ -29,25 +23,15 @@ struct EditSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Header
             HStack {
                 Button {
                     dismiss()
                 } label: {
                     Image("close")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 16, height: 16)
-//                        .padding(14) // centers icon inside the circle
-//                        .background(.ultraThinMaterial)
-//                        .overlay(
-//                            Circle()
-//                                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
-//                        )
-//                        .clipShape(Circle())
-//                        .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
+                        .frame(width: 48, height: 48)
+                        .glassEffect(.clear)
                 }
-                .buttonStyle(.glass)
-                
                 Spacer()
                 
                 Text("Set Reminder")
@@ -57,11 +41,17 @@ struct EditSheet: View {
                 Spacer()
                 
                 Button {
-                    dismiss()
+//                    dismiss()
                 }label: {
                     Image("check")
+                        .frame(width: 48, height: 48)
+                        .glassEffect(.clear)
+                        .background(Color.button)
+                        .cornerRadius(60)
+                       
+                       
                 }
-                .buttonStyle(.glass)
+         
 
             }
             .padding()
@@ -80,7 +70,7 @@ struct EditSheet: View {
                             
                             Spacer()
                             
-                            TextField("Pothos", text: $plantName)
+                            TextField("Pothos", text: $viewModel.plant.plantName)
                                 .textFieldStyle(.plain)
                         }
                         .frame(width: 330, height: 25)
@@ -98,7 +88,7 @@ struct EditSheet: View {
                             
                             Spacer()
                             
-                            Picker("Room", selection: $selectedRoom) {
+                            Picker("Room", selection: $viewModel.plant.selectedRoom) {
                                 ForEach(rooms, id: \.self) { room in
                                     Text(room).tag(room)
                                 }
@@ -117,7 +107,7 @@ struct EditSheet: View {
                             
                             Spacer()
                             
-                            Picker("Light", selection: $selectedLight) {
+                            Picker("Light", selection: $viewModel.plant.selectedLight) {
                                 ForEach(lightOptions, id: \.self) { light in
                                     Text(light).tag(light)
                                 }
@@ -142,7 +132,7 @@ struct EditSheet: View {
                             
                             Spacer()
                             
-                            Picker("Days", selection: $wateringDay) {
+                            Picker("Days", selection: $viewModel.plant.wateringDay) {
                                 ForEach(wateringDayOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
@@ -161,7 +151,7 @@ struct EditSheet: View {
                             
                             Spacer()
                             
-                            Picker("Water", selection: $watering) {
+                            Picker("Water", selection: $viewModel.plant.watering) {
                                 ForEach(wateringOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
@@ -176,16 +166,6 @@ struct EditSheet: View {
                     .cornerRadius(30)
                     // Apply tint to the container so both Pickers inherit it
                     .tint(Color.gray.opacity(0.8))
-                    Spacer()
-                    Button("Delete Reminder") {
-                       
-                    }
-                    .frame(width: 330, height: 18)
-                    .padding()
-                    .background(Color.field)
-                    .cornerRadius(30)
-                    .foregroundColor(.red)
-                 
                 }
                 .padding()
             }
@@ -196,7 +176,6 @@ struct EditSheet: View {
 }
 
 #Preview {
-    EditSheet()
+    ReminderSheet()
 }
-
 
