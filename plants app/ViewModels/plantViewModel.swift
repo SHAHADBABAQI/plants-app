@@ -34,28 +34,20 @@ class PlantViewModel: ObservableObject {
         plants.remove(atOffsets: offsets)
     }
     
+    // Convenience removal for places where we have a specific plant/id (e.g., EditSheet)
+    func remove(id: UUID) {
+        if let index = plants.firstIndex(where: { $0.plantID == id }) {
+            plants.remove(at: index)
+        }
+    }
+    
+    func remove(_ plant: Plant) {
+        remove(id: plant.plantID)
+    }
+    
     func update(_ plant: Plant) {
         guard let index = plants.firstIndex(where: { $0.plantID == plant.plantID }) else { return }
         plants[index] = plant
     }
 }
 
-
-
-//import Foundation
-//
-//class PlantViewModel: ObservableObject {
-//    @Published var plants: [Plant] = [
-//        Plant(plantName: "", selectedRoom: "", selectedLight: "", wateringDay: "", watering: "")
-//    ]
-//
-//    func addPlant(name: String, flour: Double, sugar: Double, eggs: Int) {
-//        let newPlant = Plant(plantName: , selectedRoom: , selectedLight: , wateringDay: , watering: )
-//        plants.append(newPlant)
-//    }
-//
-//    func removePlant(at offsets: IndexSet) {
-//        plants.remove(atOffsets: offsets)
-//    }
-//}
-//

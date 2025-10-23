@@ -173,11 +173,9 @@ struct EditSheet: View {
                     Spacer()
 
                     Button("Delete Reminder") {
-                        // Optional: implement delete here if desired
-                        // if let idx = viewModel.plants.firstIndex(where: { $0.plantID == editablePlant.plantID }) {
-                        //     viewModel.plants.remove(at: idx)
-                        // }
-                        // dismiss()
+                        // Delete by id using the convenience API
+                        viewModel.remove(id: editablePlant.plantID)
+                        dismiss()
                     }
                     .frame(width: 330, height: 18)
                     .padding()
