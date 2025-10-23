@@ -8,63 +8,85 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var setReminder = false
-    
+    @EnvironmentObject var viewModel: PlantViewModel
+
     var body: some View {
-        VStack(spacing: 0) {
-            // Header Section
-            VStack(alignment: .leading, spacing: 15) {
-                Text("My Plants 🌱")
-                    .font(.system(size: 34, design: .default))
-                    .bold()
-                Rectangle()
-                    .frame(height: 0.3)
-                    .foregroundColor(.gray)
-            }
-            .padding(.horizontal)
-            .padding(.top)
-            
-            Spacer()
-            
-            // Middle Content Section
-            VStack(spacing: 30) {
-                Image("plantChar")
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Header Section
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("My Plants 🌱")
+                        .font(.system(size: 34, design: .default))
+                        .bold()
+                    Rectangle()
+                        .frame(height: 0.3)
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal)
+                .padding(.top)
                 
-                Text("Start your plant journey!")
-                    .bold()
-                    .font(.system(size: 25, design: .default))
+                Spacer()
                 
-                Text("Now all your plants will be in one place and we will help you take care of them :)🪴")
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.gray)
-                    .font(.system(size: 16, design: .default))
-                    .padding(.horizontal)
-            }
-            
-            Spacer()
-            
-            // Button Section
-            Button{
-                setReminder.toggle()
+                // Middle Content Section
+                VStack(spacing: 30) {
+                    Image("plantChar")
+                    
+                    Text("Start your plant journey!")
+                        .bold()
+                        .font(.system(size: 25, design: .default))
+                    
+                    Text("Now all your plants will be in one place and we will help you take care of them :)🪴")
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.gray)
+                        .font(.system(size: 16, design: .default))
+                        .padding(.horizontal)
+                }
                 
-            }label: {
-                Text("Set Plant Reminder")
-                .frame(width: 280, height: 18)
-                .padding()
-                .background(Color.button)
-                .cornerRadius(60)
-                .glassEffect(.clear)
+                Spacer()
+                
+                // Button Section
+                Button{
+                    setReminder.toggle()
+                    
+                }label: {
+                    Text("Set Plant Reminder")
+                        .frame(width: 280, height: 18)
+                        .padding()
+                        .background(Color.button)
+                        .cornerRadius(60)
+                        .glassEffect(.clear)
+                }
+                .buttonStyle(.plain)
+                .sheet(isPresented: $setReminder) {
+                    ReminderSheet()
+                        .environmentObject(viewModel)
+                }
+                .padding(.bottom, 40)
+                Spacer()
             }
-            .buttonStyle(.plain)
-            .sheet(isPresented: $setReminder) {
-                ReminderSheet()
-            }
-            .padding(.bottom, 40)
             Spacer()
+
+            // Hidden programmatic navigation to checkView after add
+            NavigationLink(
+                destination: checkView()
+                    .environmentObject(viewModel),
+                isActive: Binding(
+                    get: { viewModel.navigateToCheckViewAfterAdd },
+                    set: { newValue in
+                        // Reset trigger when navigation link deactivates
+                        if !newValue {
+                            viewModel.navigateToCheckViewAfterAdd = false
+                        }
+                    }
+                )
+            ) {
+                EmptyView()
+            }
         }
-        Spacer()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(PlantViewModel())
 }

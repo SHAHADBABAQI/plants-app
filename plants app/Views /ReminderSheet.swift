@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct ReminderSheet: View {
+    @EnvironmentObject private var viewModel: PlantViewModel
     @Environment(\.dismiss) var dismiss
     @State private var plantName = ""
     @State private var selectedRoom = "Living Room"
     @State private var selectedLight = "Full Sun"
     @State private var wateringDay = "Every Day"
     @State private var watering = "20-50 ml"
-    @StateObject private var viewModel = PlantViewModel()
     
     let rooms = ["Living Room", "Bedroom", "Kitchen", "Bathroom", "Balcony"]
     let lightOptions = ["Full Sun", "Partial Sun", "Low Light"]
@@ -41,18 +41,26 @@ struct ReminderSheet: View {
                 Spacer()
                 
                 Button {
-//                    dismiss()
-                }label: {
+                    // Build a Plant from local state and add it
+                    let newPlant = Plant(
+                        plantID: UUID(),
+                        plantName: plantName,
+                        selectedRoom: selectedRoom,
+                        selectedLight: selectedLight,
+                        wateringDay: wateringDay,
+                        watering: watering
+                    )
+                    viewModel.add(newPlant)
+                    // Signal navigation to checkView
+                    viewModel.navigateToCheckViewAfterAdd = true
+                    dismiss()
+                } label: {
                     Image("check")
                         .frame(width: 48, height: 48)
                         .glassEffect(.clear)
                         .background(Color.button)
                         .cornerRadius(60)
-                       
-                       
                 }
-         
-
             }
             .padding()
             Spacer()
@@ -70,7 +78,7 @@ struct ReminderSheet: View {
                             
                             Spacer()
                             
-                            TextField("Pothos", text: $viewModel.plant.plantName)
+                            TextField("Pothos", text: $plantName)
                                 .textFieldStyle(.plain)
                         }
                         .frame(width: 330, height: 25)
@@ -88,7 +96,7 @@ struct ReminderSheet: View {
                             
                             Spacer()
                             
-                            Picker("Room", selection: $viewModel.plant.selectedRoom) {
+                            Picker("Room", selection: $selectedRoom) {
                                 ForEach(rooms, id: \.self) { room in
                                     Text(room).tag(room)
                                 }
@@ -107,7 +115,7 @@ struct ReminderSheet: View {
                             
                             Spacer()
                             
-                            Picker("Light", selection: $viewModel.plant.selectedLight) {
+                            Picker("Light", selection: $selectedLight) {
                                 ForEach(lightOptions, id: \.self) { light in
                                     Text(light).tag(light)
                                 }
@@ -132,7 +140,7 @@ struct ReminderSheet: View {
                             
                             Spacer()
                             
-                            Picker("Days", selection: $viewModel.plant.wateringDay) {
+                            Picker("Days", selection: $wateringDay) {
                                 ForEach(wateringDayOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
@@ -151,7 +159,7 @@ struct ReminderSheet: View {
                             
                             Spacer()
                             
-                            Picker("Water", selection: $viewModel.plant.watering) {
+                            Picker("Water", selection: $watering) {
                                 ForEach(wateringOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
@@ -178,4 +186,3 @@ struct ReminderSheet: View {
 #Preview {
     ReminderSheet()
 }
-
