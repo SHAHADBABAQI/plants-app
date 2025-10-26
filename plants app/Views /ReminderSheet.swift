@@ -49,7 +49,6 @@ struct ReminderSheet: View {
                         selectedLight: selectedLight,
                         wateringDay: wateringDay,
                         watering: watering,
-//                        isChecked: false
                     )
                     viewModel.add(newPlant)
                     // Signal navigation to checkView
@@ -59,9 +58,13 @@ struct ReminderSheet: View {
                     Image("check")
                         .frame(width: 48, height: 48)
                         .glassEffect(.clear)
-                        .background(Color.button)
+                        .background(plantName.isEmpty ? Color.gray : Color.button)
+//                        .background(Color.button)
                         .cornerRadius(60)
+
                 }
+                .disabled(plantName.isEmpty) // Prevent interaction
+
             }
             .padding()
             Spacer()
@@ -76,6 +79,7 @@ struct ReminderSheet: View {
                                 .foregroundColor(.white)
                                 .bold()
                                 .frame(width: 120, alignment: .leading)
+                                
                             
                             Spacer()
                             
