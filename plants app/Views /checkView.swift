@@ -8,7 +8,10 @@ struct CheckboxItem{
 struct checkView: View {
     var progress: Double {
         guard !viewModel.plants.isEmpty else { return 0.0 }
-        return Double(checkedPlantIDs.count) / Double(viewModel.plants.count)
+        // Count only IDs that still exist in current plants
+        let currentIDs = Set(viewModel.plants.map { $0.plantID })
+        let validCheckedCount = checkedPlantIDs.intersection(currentIDs).count
+        return Double(validCheckedCount) / Double(viewModel.plants.count)
     }
     var encouragementText: String {
         switch progress {
@@ -33,6 +36,32 @@ struct checkView: View {
     @State private var plantToEdit: Plant?
 
     @EnvironmentObject var viewModel: PlantViewModel
+
+    // Local delete handler to also clean up checked IDs
+    private func delete(at offsets: IndexSet) {
+        // Gather IDs that will be removed
+        let idsToRemove = offsets.compactMap { index in
+            viewModel.plants.indices.contains(index) ? viewModel.plants[index].plantID : nil
+        }
+        // Purge them from checked set
+        idsToRemove.forEach { checkedPlantIDs.remove($0) }
+        // Forward to view model
+        viewModel.remove(at: offsets)
+    }
+
+    // Sorted plants: unchecked first, checked last
+    private var sortedPlants: [Plant] {
+        viewModel.plants.sorted { a, b in
+            let aChecked = checkedPlantIDs.contains(a.plantID)
+            let bChecked = checkedPlantIDs.contains(b.plantID)
+            // Unchecked should come before checked
+            if aChecked != bChecked {
+                return aChecked == false && bChecked == true
+            }
+            // If both same status, keep stable order by name (or original index if desired)
+            return a.plantName.localizedCaseInsensitiveCompare(b.plantName) == .orderedAscending
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -75,12 +104,20 @@ struct checkView: View {
                     .padding(.bottom, 8)
                 }
 
-                ForEach(viewModel.plants, id: \.plantID) { plant in
+                ForEach(sortedPlants, id: \.plantID) { plant in
+                    let isChecked = checkedPlantIDs.contains(plant.plantID)
+                    // Dim color when checked
+                    let primaryTextColor: Color = isChecked ? .gray : .primary
+                    let secondaryTextColor: Color = isChecked ? .gray.opacity(0.7) : .gray
+                    let chipBackground: Color = Color.field
+                    let sunColor: Color = isChecked ? .gray : .fullSun
+                    let waterColor: Color = isChecked ? .gray : .dropMll
+                    let checkColor: Color = isChecked ? .button : .gray
+
                     VStack(alignment: .leading) {
                         HStack(alignment: .top, spacing: 10) {
-                            let isChecked = checkedPlantIDs.contains(plant.plantID)
                             Image(systemName: isChecked ? "checkmark.circle.fill": "circle")
-                                .foregroundColor(isChecked ? .button : .gray)
+                                .foregroundColor(checkColor)
                                 .font(.system(size: 22))
                                 .padding(.trailing, 4)
                                 .contentShape(Rectangle())
@@ -97,50 +134,52 @@ struct checkView: View {
                                     Image("location")
                                         .resizable()
                                         .renderingMode(.template)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(secondaryTextColor)
                                         .frame(width: 15, height: 15)
 
                                     Text(plant.selectedRoom)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(secondaryTextColor)
                                         .font(.system(size: 15))
                                 }
 
                                 Text(plant.plantName)
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(primaryTextColor)
 
                                 HStack(spacing: 8) {
                                     HStack(spacing: 6) {
                                         Image("sun")
                                             .resizable()
                                             .renderingMode(.template)
-                                            .foregroundColor(.fullSun)
+                                            .foregroundColor(sunColor)
                                             .frame(width: 15, height: 15)
 
                                         Text(plant.selectedLight)
-                                            .foregroundColor(.fullSun)
+                                            .foregroundColor(sunColor)
                                             .font(.system(size: 14))
                                     }
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.field)
+                                    .background(chipBackground)
                                     .cornerRadius(8)
+                                    .opacity(isChecked ? 0.6 : 1.0)
 
                                     HStack(spacing: 6) {
                                         Image("drop")
                                             .resizable()
                                             .renderingMode(.template)
-                                            .foregroundColor(.dropMll)
+                                            .foregroundColor(waterColor)
                                             .frame(width: 10, height: 14)
 
                                         Text(plant.watering)
-                                            .foregroundColor(.dropMll)
+                                            .foregroundColor(waterColor)
                                             .font(.system(size: 14))
                                     }
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.field)
+                                    .background(chipBackground)
                                     .cornerRadius(8)
+                                    .opacity(isChecked ? 0.6 : 1.0)
                                 }
                             }
                         }
@@ -152,7 +191,19 @@ struct checkView: View {
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                 }
-                .onDelete(perform: viewModel.remove)
+                // Note: onDelete uses original indices; we need to translate from sorted to original.
+                // Easiest is to disable swipe-to-delete here and provide delete in EditSheet, or map indices.
+                // We'll keep swipe delete by mapping offsets to original indices:
+                .onDelete { offsets in
+                    // Translate sorted offsets to original indices
+                    let originalIndices = IndexSet(
+                        offsets.compactMap { sortedIndex in
+                            let plant = sortedPlants[sortedIndex]
+                            return viewModel.plants.firstIndex(where: { $0.plantID == plant.plantID })
+                        }
+                    )
+                    delete(at: originalIndices)
+                }
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
