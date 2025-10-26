@@ -200,7 +200,8 @@ struct EditSheet: View {
             selectedRoom: "Living Room",
             selectedLight: "Full Sun",
             wateringDay: "Every Day",
-            watering: "20-50 ml"
+            watering: "20-50 ml",
+//            isChecked: false
         )
     )
     .environmentObject(PlantViewModel())

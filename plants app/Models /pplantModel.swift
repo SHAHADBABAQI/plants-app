@@ -14,6 +14,8 @@ struct Plant: Identifiable, Equatable {
     var selectedLight: String
     var wateringDay: String
     var watering: String
+//    var isChecked: Bool
+
 
     // Identifiable conformance using your stored plantID
     var id: UUID { plantID }

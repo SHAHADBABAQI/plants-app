@@ -6,8 +6,24 @@ struct CheckboxItem{
 }
 
 struct checkView: View {
-    @State private var progress: Double = 0.7 // 👈 demo progress
-    @State private var yOffset: CGFloat = 0.0
+    var progress: Double {
+        guard !viewModel.plants.isEmpty else { return 0.0 }
+        return Double(checkedPlantIDs.count) / Double(viewModel.plants.count)
+    }
+    var encouragementText: String {
+        switch progress {
+        case 0.0:
+            return "Your plants are waiting for a sip 💦"
+        case 0.0..<0.4:
+            return "Nice! Keep watering 💧"
+        case 0.4..<0.8:
+            return "Great progress! 🌿"
+        case 0.8..<1.0:
+            return "Almost done! ☀️"
+        default:
+            return "All plants are watered! 🪴✨"
+        }
+    }
     @State private var setReminder = false
 
     // Track which plants are checked without changing your Plant model
@@ -19,36 +35,46 @@ struct checkView: View {
     @EnvironmentObject var viewModel: PlantViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 30) {
-            Text("My Plants 🌱")
-                .font(.system(size: 34, design: .default))
-                .bold()
-
-            Divider()
-
-            VStack {
-                Text("Your plants are waiting for a sip 💦")
-
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        // Background bar with rounded corners
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.field)
-                            .frame(height: 8)
-
-                        // Progress fill with rounded corners
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.button)
-                            .glassEffect()
-                            .frame(width: max(0, min(progress, 1)) * geo.size.width, height: 8)
-                            .animation(.easeInOut(duration: 1), value: progress)
-                    }
-                }
-                .frame(height: 8) // constrain reader height
-            }
-            .padding(.bottom, 8)
-
+        ZStack(alignment: .bottomTrailing) {
             List {
+                // Header and progress inside a section header to keep List scrollable
+                Section {
+                    EmptyView()
+                } header: {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("My Plants 🌱")
+                            .font(.system(size: 34, design: .default))
+                            .bold()
+                            .foregroundColor(.white)
+
+                        Divider()
+
+                        VStack(spacing: 8) {
+                            Text(encouragementText)
+                                .foregroundColor(.white)
+
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    // Background bar with rounded corners
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.field)
+                                        .frame(height: 8)
+
+                                    // Progress fill with rounded corners
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.button)
+                                        .glassEffect()
+                                        .frame(width: max(0, min(progress, 1)) * geo.size.width, height: 8)
+                                        .animation(.easeInOut(duration: 1), value: progress)
+                                }
+                            }
+                            .frame(height: 8) // constrain reader height
+                        }
+                        .padding(.top, 4)
+                    }
+                    .padding(.bottom, 8)
+                }
+
                 ForEach(viewModel.plants, id: \.plantID) { plant in
                     VStack(alignment: .leading) {
                         HStack(alignment: .top, spacing: 10) {
@@ -131,18 +157,17 @@ struct checkView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
+            .padding(.horizontal) // keep similar padding feel
 
-            HStack {
-                Spacer()
-                Button {
-                    setReminder.toggle()
-                } label: {
-                    Image("plus")
-                        .frame(width: 48, height: 48)
-                        .background(Color.button)
-                        .cornerRadius(60)
-                        .glassEffect(.clear)
-                }
+            // Floating button overlay so it doesn't affect List layout/scroll
+            Button {
+                setReminder.toggle()
+            } label: {
+                Image("plus")
+                    .frame(width: 48, height: 48)
+                    .background(Color.button)
+                    .cornerRadius(60)
+                    .glassEffect(.clear)
             }
             .padding(.trailing, 25)
             .padding(.bottom, 20)
@@ -151,7 +176,6 @@ struct checkView: View {
                     .environmentObject(viewModel)
             }
         }
-        .padding()
         // Use item-based sheet to avoid blank content while item is nil
         .sheet(item: $plantToEdit, onDismiss: {
             plantToEdit = nil

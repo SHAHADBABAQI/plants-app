@@ -16,7 +16,9 @@ class PlantViewModel: ObservableObject {
         selectedRoom: "Living Room",
         selectedLight: "Full Sun",
         wateringDay: "Every Day",
-        watering: "20-50 ml"
+        watering: "20-50 ml",
+//        isChecked: false
+
     )
     
     // Store multiple plants
@@ -49,5 +51,7 @@ class PlantViewModel: ObservableObject {
         guard let index = plants.firstIndex(where: { $0.plantID == plant.plantID }) else { return }
         plants[index] = plant
     }
+    
+
 }
 

@@ -48,7 +48,8 @@ struct ReminderSheet: View {
                         selectedRoom: selectedRoom,
                         selectedLight: selectedLight,
                         wateringDay: wateringDay,
-                        watering: watering
+                        watering: watering,
+//                        isChecked: false
                     )
                     viewModel.add(newPlant)
                     // Signal navigation to checkView
