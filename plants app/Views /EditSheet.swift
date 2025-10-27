@@ -47,8 +47,15 @@ struct EditSheet: View {
                 Spacer()
 
                 Button {
-                    // Update the existing plant by ID
+                    // Cancel old reminder first (before updating the view model)
+                    NotificationManager.shared.cancelReminder(for: editablePlant)
+
+                    // Update the plant in the view model
                     viewModel.update(editablePlant)
+
+                    // Schedule with updated details
+                    NotificationManager.shared.scheduleWateringReminder(for: editablePlant)
+
                     dismiss()
                 } label: {
                     Image("check")
@@ -106,7 +113,7 @@ struct EditSheet: View {
                             .padding(.horizontal)
 
                         HStack {
-                            Image("sun")
+                            Image(viewModel.lightIconName(for: editablePlant.selectedLight))
                             Text("Light")
                                 .frame(width: 120, alignment: .leading)
 
@@ -173,6 +180,8 @@ struct EditSheet: View {
                     Spacer()
 
                     Button("Delete Reminder") {
+                        // Cancel notification before removing the plant
+                        NotificationManager.shared.cancelReminder(for: editablePlant)
                         // Delete by id using the convenience API
                         viewModel.remove(id: editablePlant.plantID)
                         dismiss()
@@ -200,8 +209,7 @@ struct EditSheet: View {
             selectedRoom: "Living Room",
             selectedLight: "Full Sun",
             wateringDay: "Every Day",
-            watering: "20-50 ml",
-//            isChecked: false
+            watering: "20-50 ml"
         )
     )
     .environmentObject(PlantViewModel())

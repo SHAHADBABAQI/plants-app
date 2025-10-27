@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct Plant: Identifiable, Equatable {
+struct Plant: Identifiable, Equatable, Codable {
     var plantID: UUID
     var plantName: String
     var selectedRoom: String
     var selectedLight: String
     var wateringDay: String
     var watering: String
-//    var isChecked: Bool
-
+    // Anchor date for the watering schedule. We update this when the user waters the plant.
+    var lastWateredDate: Date = Date()
 
     // Identifiable conformance using your stored plantID
     var id: UUID { plantID }

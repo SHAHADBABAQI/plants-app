@@ -48,9 +48,13 @@ struct ReminderSheet: View {
                         selectedRoom: selectedRoom,
                         selectedLight: selectedLight,
                         wateringDay: wateringDay,
-                        watering: watering,
+                        watering: watering
                     )
                     viewModel.add(newPlant)
+
+                    // Schedule repeating reminder for this plant
+                    NotificationManager.shared.scheduleWateringReminder(for: newPlant)
+
                     // Signal navigation to checkView
                     viewModel.navigateToCheckViewAfterAdd = true
                     dismiss()
@@ -59,7 +63,6 @@ struct ReminderSheet: View {
                         .frame(width: 48, height: 48)
                         .glassEffect(.clear)
                         .background(plantName.isEmpty ? Color.gray : Color.button)
-//                        .background(Color.button)
                         .cornerRadius(60)
 
                 }
@@ -114,7 +117,7 @@ struct ReminderSheet: View {
                             .padding(.horizontal)
                         
                         HStack {
-                            Image("sun")
+                            Image(viewModel.lightIconName(for: selectedLight))
                             Text("Light")
                                 .frame(width: 120, alignment: .leading)
                             
@@ -191,3 +194,4 @@ struct ReminderSheet: View {
 #Preview {
     ReminderSheet()
 }
+

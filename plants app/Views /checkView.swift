@@ -36,7 +36,7 @@ struct checkView: View {
     @State private var plantToEdit: Plant?
 
     @EnvironmentObject var viewModel: PlantViewModel
-
+    
     // Local delete handler to also clean up checked IDs
     private func delete(at offsets: IndexSet) {
         // Gather IDs that will be removed
@@ -110,13 +110,14 @@ struct checkView: View {
                     
                     ForEach(sortedPlants, id: \.plantID) { plant in
                         let isChecked = checkedPlantIDs.contains(plant.plantID)
+                        let isDue = viewModel.isDue(plant)
                         // Dim color when checked
                         let primaryTextColor: Color = isChecked ? .gray : .primary
                         let secondaryTextColor: Color = isChecked ? .gray.opacity(0.7) : .gray
                         let chipBackground: Color = Color.field
                         let sunColor: Color = isChecked ? .gray : .fullSun
                         let waterColor: Color = isChecked ? .gray : .dropMll
-                        let checkColor: Color = isChecked ? .button : .gray
+                        let checkColor: Color = isChecked ? .button : (isDue ? .button : .gray)
                         
                         VStack(alignment: .leading) {
                             HStack(alignment: .top, spacing: 10) {
@@ -127,8 +128,11 @@ struct checkView: View {
                                     .contentShape(Rectangle())
                                     .onTapGesture {
                                         if isChecked {
+                                            // Unchecking only affects local UI state
                                             checkedPlantIDs.remove(plant.plantID)
                                         } else {
+                                            // Mark as watered (updates schedule) and reflect in UI
+                                            viewModel.markWatered(plant)
                                             checkedPlantIDs.insert(plant.plantID)
                                         }
                                     }
@@ -152,7 +156,7 @@ struct checkView: View {
                                     
                                     HStack(spacing: 8) {
                                         HStack(spacing: 6) {
-                                            Image("sun")
+                                            Image(viewModel.lightIconName(for: plant.selectedLight))
                                                 .resizable()
                                                 .renderingMode(.template)
                                                 .foregroundColor(sunColor)
@@ -185,6 +189,17 @@ struct checkView: View {
                                         .cornerRadius(8)
                                         .opacity(isChecked ? 0.6 : 1.0)
                                     }
+                                }
+                                Spacer()
+                                // Optional: a small due badge
+                                if isDue && !isChecked {
+                                    Text("Due")
+                                        .font(.caption2)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.red.opacity(0.8))
+                                        .cornerRadius(6)
                                 }
                             }
                             .contentShape(Rectangle())
@@ -254,3 +269,4 @@ struct ckeckboxView_previews: PreviewProvider{
     checkView()
         .environmentObject(PlantViewModel())
 }
+

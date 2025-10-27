@@ -11,7 +11,10 @@ import SwiftUI
 struct plants_appApp: App {
     // Provide a single shared instance for the whole app
     @StateObject private var viewModel = PlantViewModel()
-
+    init() {
+        // Ask for notification permission once at app start
+        NotificationManager.shared.requestAuthorization()
+    }
     var body: some Scene {
         WindowGroup {
             ContentView()
